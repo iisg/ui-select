@@ -1013,11 +1013,16 @@ describe('ui-select tests', function() {
       openDropdown(el);
       var choices = el.find('.ui-select-choices-row');
 
-      expect(choices.eq(0)).toHaveClass('active');
+      expect(choices.eq(0)).not.toHaveClass('active');
       expect(getGroupLabel(choices.eq(0)).text()).toBe('Foo');
 
       triggerKeydown(el.find('input'), 40 /*Down*/);
       scope.$digest();
+      expect(choices.eq(0)).toHaveClass('active');
+
+      triggerKeydown(el.find('input'), 40 /*Down*/);
+      scope.$digest();
+      expect(choices.eq(0)).not.toHaveClass('active');
       expect(choices.eq(1)).toHaveClass('active');
       expect(getGroupLabel(choices.eq(1)).text()).toBe('bar');
     });
@@ -1424,7 +1429,6 @@ describe('ui-select tests', function() {
     var searchInput = el.find('.ui-select-search');
 
     setSearchText(el, 'idontexist');
-
     triggerKeydown(searchInput, Key.Enter);
 
     expect($(el).scope().$select.selected).toEqual('idontexist');
@@ -1449,7 +1453,6 @@ describe('ui-select tests', function() {
     var searchInput = el.find('.ui-select-search');
 
     setSearchText(el, 'idontexist');
-
     triggerKeydown(searchInput, Key.Enter);
 
     expect($(el).scope().$select.selected).toEqual(['idontexist']);
@@ -2155,7 +2158,7 @@ describe('ui-select tests', function() {
 
         triggerKeydown(searchInput, Key.Down);
         triggerKeydown(searchInput, Key.Enter);
-        expect(scope.selection.selectedMultiple.length).toEqual(2);
+        expect(scope.selection.selectedMultiple.length).toEqual(1);
 
     });
 
@@ -2166,7 +2169,7 @@ describe('ui-select tests', function() {
         spyOn(jQuery.Event.prototype, 'preventDefault');
         spyOn(jQuery.Event.prototype, 'stopPropagation');
 
-        triggerKeydown(searchInput, Key.Down);
+        setSearchText(searchInput, 'test');
         triggerKeydown(searchInput, Key.Enter);
         expect(jQuery.Event.prototype.preventDefault).toHaveBeenCalled();
         expect(jQuery.Event.prototype.stopPropagation).toHaveBeenCalled();

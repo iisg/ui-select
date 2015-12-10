@@ -24,7 +24,7 @@ uis.controller('uiSelectCtrl',
   ctrl.skipFocusser = false; //Set to true to avoid returning focus to ctrl when item is selected
   ctrl.search = EMPTY_SEARCH;
 
-  ctrl.activeIndex = 0; //Dropdown of choices
+  ctrl.activeIndex = -1; //Dropdown of choices - by default nothing selected.
   ctrl.items = []; //All available choices
 
   ctrl.open = false;
@@ -119,7 +119,7 @@ uis.controller('uiSelectCtrl',
 
       // ensure that the index is set to zero for tagging variants
       // that where first option is auto-selected
-      if ( ctrl.activeIndex === -1 && ctrl.taggingLabel !== false ) {
+      if ( ctrl.activeIndex === -1 && ctrl.tagging.isActivated && ctrl.taggingLabel !== false) {
         ctrl.activeIndex = 0;
       }
 
@@ -608,7 +608,8 @@ uis.controller('uiSelectCtrl',
     //   //TODO: SEGURO?
     //   ctrl.close();
     // }
-
+    
+    var hasContent = ctrl.search.length > 0;
     $scope.$apply(function() {
 
       var tagged = false;
@@ -622,7 +623,7 @@ uis.controller('uiSelectCtrl',
           for (var i = 0; i < ctrl.taggingTokens.tokens.length; i++) {
             if ( ctrl.taggingTokens.tokens[i] === KEY.MAP[e.keyCode] ) {
               // make sure there is a new value to push via tagging
-              if ( ctrl.search.length > 0 ) {
+              if ( hasContent ) {
                 tagged = true;
               }
             }
@@ -637,6 +638,10 @@ uis.controller('uiSelectCtrl',
               if (newItem) ctrl.select(newItem, true);
             });
           }
+        } else if (ctrl.multiple && !ctrl.tagging.isActivated && [KEY.TAB, KEY.ENTER].indexOf(key) !== -1) {
+          $timeout(function(){
+            ctrl.searchInput.triggerHandler('selected');
+          });
         }
       }
 
@@ -645,10 +650,19 @@ uis.controller('uiSelectCtrl',
     if(KEY.isVerticalMovement(key) && ctrl.items.length > 0){
       _ensureHighlightVisible();
     }
-
-    if (key === KEY.ENTER || key === KEY.ESC) {
+    
+    if (key === KEY.ESC) {
       e.preventDefault();
       e.stopPropagation();
+    }
+
+    if ([KEY.TAB, KEY.ENTER].indexOf(key) !== -1) {
+      if (hasContent) {
+        e.preventDefault();
+        e.stopPropagation();
+      } else {
+        ctrl.close();
+      }
     }
 
   });
@@ -702,6 +716,10 @@ uis.controller('uiSelectCtrl',
     $timeout(function() {
       _resetSearchInput();
     });
+  });
+
+  ctrl.searchInput.on('selected', function() {
+    _resetSearchInput();
   });
 
   // See https://github.com/ivaynberg/select2/blob/3.4.6/select2.js#L1431

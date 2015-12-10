@@ -174,6 +174,9 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
       };
 
       scope.$on('uis:select', function (event, item) {
+        if(item === undefined) {
+            return;
+        }
         if($select.selected.length >= $select.limit) {
           return;
         }
@@ -277,10 +280,11 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
       }
 
       $select.searchInput.on('keyup', function(e) {
-
         if ( ! KEY.isVerticalMovement(e.which) ) {
           scope.$evalAsync( function () {
-            $select.activeIndex = $select.taggingLabel === false ? -1 : 0;
+            var hasContent = $select.search.length > 0;
+            var hasTagging = $select.tagging.isActivated && $select.taggingLabel === false;
+            $select.activeIndex = !hasContent || (!$select.multiple && !hasTagging) ? -1 : 0;
           });
         }
         // Push a "create new" item into array if there is a search string
@@ -291,7 +295,7 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
             return;
           }
           // always reset the activeIndex to the first item when tagging
-          $select.activeIndex = $select.taggingLabel === false ? -1 : 0;
+          $select.activeIndex = 0;
           // taggingLabel === false bypasses all of this
           if ($select.taggingLabel === false) return;
 
