@@ -1,7 +1,7 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
- * Version: 0.19.4 - 2016-09-26T13:31:40.700Z
+ * Version: 0.19.4 - 2016-09-26T13:36:39.267Z
  * License: MIT
  */
 
@@ -647,7 +647,6 @@ uis.controller('uiSelectCtrl',
     var isDisabled = false;
 
     if (itemIndex >= 0 && (angular.isDefined(ctrl.disableChoiceExpression) || ctrl.multiple)) {
-
       if (item.isTag) return false;
 
       if (ctrl.multiple) {
@@ -1687,6 +1686,9 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
       scope.$on('uis:select', function (event, item) {
         if(item === undefined) {
             return;
+        }
+        if (angular.isUndefined($select.selected)) {
+          $select.selected = [];
         }
         if($select.selected.length >= $select.limit) {
           return;

@@ -177,6 +177,9 @@ uis.directive('uiSelectMultiple', ['uiSelectMinErr','$timeout', function(uiSelec
         if(item === undefined) {
             return;
         }
+        if (angular.isUndefined($select.selected)) {
+          $select.selected = [];
+        }
         if($select.selected.length >= $select.limit) {
           return;
         }
